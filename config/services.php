@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'crm' => [
+        'url' => env('CRM_API_URL'),
+        'token' => env('CRM_API_TOKEN'),
+    ]
+
 ];
