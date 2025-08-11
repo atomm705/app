@@ -1,23 +1,13 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Proxy\PatientController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\ApiController;
 
-Route::post('/precreate', [AuthController::class, 'precreate']);
-Route::post('/verify-code', [AuthController::class, 'verifyCode']);
-Route::post('/create-password', [AuthController::class, 'createPassword']);
-Route::get('/test-crm', function () {
-    $response = Http::get(config('services.crm.url') . '/patients/check', [
-        'full_name' => 'Донець Юрій Васильович',
-        'phone' => '380663604626',
-        'birthday' => '1983-02-05',
-    ]);
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
 
-    return [
-        'status' => $response->status(),
-        'body' => $response->json(),
-    ];
-});Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', fn(Request $request) => $request->user());
-});
+Route::apiResource('apis', ApiController::class);
+Route::post('register', [ApiController::class, 'register']);
+Route::post('create_password', [ApiController::class, 'create_password']);
