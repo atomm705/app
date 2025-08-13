@@ -3,15 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\AppUser;
+use App\Models\AppVerificationCode;
 use App\Models\Patient;
+use App\Models\SmsVerification;
 use Illuminate\Http\Request;
 use App\Models\Api;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessTokenResult;
 use Illuminate\Support\Facades\Log;
+use Psy\Util\Str;
+use SoapClient;
+
 
 class ApiController extends Controller
 {
+    /** SMS authorisation  */
+    public function auth()
+    {
+        $client = new SoapClient('http://turbosms.in.ua/api/wsdl.html');
+
+//      Можно просмотреть список доступных методов сервера
+//      print_r($client->__getFunctions());
+
+        $args = [
+            'login' => 'okc',
+            'password' => 'YVHf5vges7g3MhW'
+        ];
+        $client->Auth($args);
+
+        return $client;
+    }
+
+
     /**
      * Display a listing of the resource.
      */
@@ -74,7 +97,29 @@ class ApiController extends Controller
         if($patient->id){
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
-                return response()->json($patient);
+                $code = Str::rand(4);
+                $sms_code = new SmsVerification();
+                $sms_code->phone = $request->phone;
+                $sms_code->code = $code;
+                $sms_code->save();
+                
+                $search = [
+                    '(__DATE__)',
+                    '(__TIME__)',
+                ];
+                $sms = [
+                    'sender' => 'OK-Centre',
+                    'destination' => $request->phone,
+                    'text' => str_replace($search, $code)
+                ];
+                try {
+                    $client = $this->auth();
+                    $sended = $client->SendSMS($sms);
+                    $result = $sended->SendSMSResult->ResultArray[0];
+                } catch (Exception $e) {
+                    $result = 'Ничего не вышло';
+                }
+                return response()->json("Вам відправлено СМС з кодом на номер телефону. Введіть його в поле вище.");
             }
             else{
                 return response()->json('Користувач існує. Авторизуйтеся.');
