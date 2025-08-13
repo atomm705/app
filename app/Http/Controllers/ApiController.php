@@ -59,13 +59,15 @@ class ApiController extends Controller
 
     public function register(Request $request){
 
+        Log::info('Raw body', ['body' => $request->getContent()]);
+        
         $dobs = explode(".", $request->dob);
         $dob = $dobs[2].'-'.$dobs[1].'-'.$dobs[0];
         $patient = Patient::where('last_name', $request->lastName)
             ->where('first_name', $request->firstName)
             ->where('middle_name', $request->middleName)
             ->where('phone', $request->phone)
-            ->where('dob', $dob)
+            ->where('birthday', $dob)
             ->first();
 
         if($patient->id){
