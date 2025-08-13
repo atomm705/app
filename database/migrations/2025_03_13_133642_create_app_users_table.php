@@ -16,7 +16,6 @@ return new class extends Migration
             $table->char('login', 10);
             $table->integer('patient_id');
             $table->char('password');
-            $table->
             $table->boolean('email_verified');
             $table->boolean('phone_verified');
             $table->timestamps();
