@@ -97,12 +97,12 @@ class ApiController extends Controller
         if($patient->id){
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
-                $code = Str::rand(4);
+                $code = Str::random(4);
                 $sms_code = new SmsVerification();
                 $sms_code->phone = $request->phone;
                 $sms_code->code = $code;
                 $sms_code->save();
-                
+
                 $search = [
                     '(__DATE__)',
                     '(__TIME__)',
