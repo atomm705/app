@@ -68,7 +68,7 @@ class ApiController extends Controller
             ->where('first_name', $request->firstName)
             ->where('middle_name', $request->middleName)
             ->where('phone', $request->phone)
-            ->where('birthday', $dob)
+            ->where('dob', $dob)
             ->first();
 
         if($patient->id){
