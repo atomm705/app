@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Api;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessTokenResult;
+use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
 {
@@ -60,7 +61,7 @@ class ApiController extends Controller
     public function register(Request $request){
 
         Log::info('Raw body', ['body' => $request->getContent()]);
-        
+
         $dobs = explode(".", $request->dob);
         $dob = $dobs[2].'-'.$dobs[1].'-'.$dobs[0];
         $patient = Patient::where('last_name', $request->lastName)
