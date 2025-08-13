@@ -101,6 +101,7 @@ class ApiController extends Controller
                 $sms_code = new SmsVerification();
                 $sms_code->phone = $request->phone;
                 $sms_code->code = $code;
+                $sms_code->expires_at = Carbon::now()->addMinutes(15);
                 $sms_code->save();
 
                 $search = [
