@@ -111,7 +111,7 @@ class ApiController extends Controller
                 $sms = [
                     'sender' => 'OK-Centre',
                     'destination' => $request->phone,
-                    'text' => str_replace($search, $code)
+                    'text' => $code,
                 ];
                 try {
                     $client = $this->auth();
