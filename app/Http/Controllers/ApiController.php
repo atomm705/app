@@ -11,7 +11,7 @@ use App\Models\Api;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessTokenResult;
 use Illuminate\Support\Facades\Log;
-use Psy\Util\Str;
+use Illuminate\Support\Str;
 use SoapClient;
 
 
