@@ -159,6 +159,7 @@ class ApiController extends Controller
         $phone = $request->phone;
         $code = $request->code;
 
+        Log::info('Raw body', ['body' => $request->getContent()]);
         // Знаходимо останній код для цього телефону
         $sms = SmsVerification::where('phone', $phone)
             ->orderByDesc('created_at')
