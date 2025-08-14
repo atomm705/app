@@ -118,10 +118,6 @@ class ApiController extends Controller
                     ]
                 );
 
-                $search = [
-                    '(__DATE__)',
-                    '(__TIME__)',
-                ];
                 $sms = [
                     'sender' => 'OK-Centre',
                     'destination' => $request->phone,
@@ -130,16 +126,16 @@ class ApiController extends Controller
                 try {
                     $client = $this->auth();
                     $sended = $client->SendSMS($sms);
-                    $result = $sended->SendSMSResult->ResultArray[0];
-                } catch (Exception $e) {
-                    return response()->json([
-                        'ok'      => false,
-                        'message' => 'Не вдалося надіслати СМС. Спробуйте пізніше.',
-                    ], 502);
+                    $result = $sended->SendSMSResult->ResultArray[0] ?? 'UNKNOWN';
+                    Log::info('SMS sent', ['result' => $result]);
+                } catch (\Throwable $e) {
+                    Log::error('SMS send failed', ['error' => $e->getMessage()]);
+                    return response()->json(['ok' => false, 'message' => 'Не вдалося надіслати СМС'], 502);
                 }
+
                 return response()->json([
-                    'ok'      => true,
-                    'message' => 'Вам відправлено СМС з кодом. Введіть його у полі вище (дійсний 15 хв).',
+                    'ok' => true,
+                    'message' => 'Вам відправлено СМС з кодом (дійсний 15 хв).'
                 ]);
             }
             else{
