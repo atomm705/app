@@ -116,6 +116,7 @@ class ApiController extends Controller
             $waitMinutes = now()->diffInMinutes($lastSms->last_sent_at, false);
             return response()->json([
                 'ok' => true,
+                'patientId' => $patient->id,
                 'error' => "СМС вже відправлено. Спробуйте знову через {$waitMinutes} хв."
             ], 429);
         }
@@ -150,6 +151,7 @@ class ApiController extends Controller
 
         return response()->json([
             'ok' => true,
+            'patientId' => $patient->id,
             'message' => 'Вам відправлено СМС з кодом. Введіть його в поле вище.',
             'sms_status' => $result
         ]);
@@ -200,13 +202,14 @@ class ApiController extends Controller
 
         $patientId = $request->patientId;
 
+        Log::info('Raw body', ['body' => $request->getContent()]);
         $patient = Patient::find($patientId);
 
         $user = AppUser::where('patient_id', $patientId)->first();
         if(!$user){
             $user = new AppUser();
             $user->patient_id = $patientId;
-            $user->login = $patient->phone;
+            $user->login = $request->phone;
             $user->password = Hash::make($request->password);
             $user->save();
 
