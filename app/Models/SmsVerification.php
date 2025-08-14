@@ -14,6 +14,7 @@ class SmsVerification extends Model
     ];
 
     protected $casts = [
+        'last_sent_at' => 'datetime',
         'expires_at' => 'datetime',
     ];
 }
