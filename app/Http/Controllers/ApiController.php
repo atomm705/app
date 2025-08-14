@@ -98,6 +98,7 @@ class ApiController extends Controller
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
                 $code = Str::random(0000, 9999);
+                Log::info('Raw body', ['code' => $code]);
                 $sms_code = new SmsVerification();
                 $sms_code->phone = $request->phone;
                 $sms_code->code = $code;
@@ -111,7 +112,7 @@ class ApiController extends Controller
                 $sms = [
                     'sender' => 'OK-Centre',
                     'destination' => $request->phone,
-                    'text' => $code,
+                    'text' => $sms_code->code,
                 ];
                 try {
                     $client = $this->auth();
