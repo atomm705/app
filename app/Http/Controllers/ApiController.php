@@ -83,10 +83,13 @@ class ApiController extends Controller
 
     public function register(Request $request){
 
-        //Log::info('Raw body', ['body' => $request->getContent()]);
+        /Log::info('Raw body', ['body' => $request->getContent()]);
 
+        // Форматуємо дату народження
         $dobs = explode(".", $request->dob);
-        $dob = $dobs[2].'-'.$dobs[1].'-'.$dobs[0];
+        $dob = $dobs[2] . '-' . $dobs[1] . '-' . $dobs[0];
+
+        // Пошук пацієнта
         $patient = Patient::where('last_name', $request->lastName)
             ->where('first_name', $request->firstName)
             ->where('middle_name', $request->middleName)
@@ -94,57 +97,57 @@ class ApiController extends Controller
             ->where('dob', $dob)
             ->first();
 
-        if($patient->id){
-            $user = AppUser::where('patient_id', $patient->id)->first();
-            if(!$user){
-                $lastCode = SmsVerification::where('phone', $request->phone)->first();
-                if ($lastCode && $lastCode->last_sent_at && $lastCode->last_sent_at->gt(now()->subMinute())) {
-                    $waitSeconds = now()->diffInSeconds($lastCode->last_sent_at->addMinute(), false);
-                    return response()->json([
-                        'ok' => false,
-                        'resend' => false,
-                        'message' => "Код уже відправлено. Можна повторно надіслати через {$waitSeconds} секунд."
-                    ], 429);
-                }
-
-                $code = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
-
-                SmsVerification::updateOrCreate(
-                    ['phone' => $request->phone],
-                    [
-                        'code'         => $code,
-                        'expires_at'   => now()->addMinutes(15),
-                        'last_sent_at' => now(),
-                    ]
-                );
-
-                $sms = [
-                    'sender' => 'OK-Centre',
-                    'destination' => $request->phone,
-                    'text' => $code,
-                ];
-                try {
-                    $client = $this->auth();
-                    $sended = $client->SendSMS($sms);
-                    $result = $sended->SendSMSResult->ResultArray[0] ?? 'UNKNOWN';
-                    Log::info('SMS sent', ['result' => $result]);
-                } catch (\Throwable $e) {
-                    Log::error('SMS send failed', ['error' => $e->getMessage()]);
-                    return response()->json(['ok' => false, 'message' => 'Не вдалося надіслати СМС'], 502);
-                }
-
-                return response()->json([
-                    'ok' => true,
-                    'message' => 'Вам відправлено СМС з кодом (дійсний 15 хв).'
-                ]);
-            }
-            else{
-                return response()->json([
-                    'ok'      => false,
-                    'message' => 'Користувач існує. Авторизуйтеся.',
-                ], 502);
-            }
+        if (!$patient) {
+            return response()->json(['error' => 'Пацієнта не знайдено'], 404);
         }
+
+        $user = AppUser::where('patient_id', $patient->id)->first();
+
+        if ($user) {
+            return response()->json(['error' => 'Користувач існує. Авторизуйтеся.'], 409);
+        }
+
+        // Перевірка останнього СМС
+        $lastSms = SmsVerification::where('phone', $request->phone)
+            ->latest()
+            ->first();
+
+        if ($lastSms && $lastSms->expires_at && $lastSms->expires_at->gt(now())) {
+            $waitMinutes = now()->diffInMinutes($lastSms->expires_at, false);
+            return response()->json([
+                'error' => "СМС вже відправлено. Спробуйте знову через {$waitMinutes} хв."
+            ], 429);
+        }
+
+        // Генеруємо код з 4 цифр
+        $code = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+
+        // Зберігаємо код
+        SmsVerification::create([
+            'phone' => $request->phone,
+            'code' => $code,
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        // Відправка СМС
+        try {
+            $client = $this->auth();
+            $sms = [
+                'sender' => 'OK-Centre',
+                'destination' => $request->phone,
+                'text' => $code,
+            ];
+            $sended = $client->SendSMS($sms);
+            $result = $sended->SendSMSResult->ResultArray[0];
+        } catch (\Exception $e) {
+            Log::error('SMS sending failed', ['error' => $e->getMessage()]);
+            $result = 'Помилка відправки СМС';
+        }
+
+        return response()->json([
+            'message' => 'Вам відправлено СМС з кодом. Введіть його в поле вище.',
+            'sms_status' => $result
+        ]);
     }
 
     public function sms_verification(Request $request){
