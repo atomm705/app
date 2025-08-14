@@ -83,7 +83,7 @@ class ApiController extends Controller
 
     public function register(Request $request){
 
-        Log::info('Raw body', ['body' => $request->getContent()]);
+        //Log::info('Raw body', ['body' => $request->getContent()]);
 
         $dobs = explode(".", $request->dob);
         $dob = $dobs[2].'-'.$dobs[1].'-'.$dobs[0];
