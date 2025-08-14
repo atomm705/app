@@ -115,7 +115,7 @@ class ApiController extends Controller
         if ($lastSms && $lastSms->last_sent_at && $lastSms->last_sent_at->gt(now()->subMinutes(3))) {
             $waitMinutes = now()->diffInMinutes($lastSms->last_sent_at, false);
             return response()->json([
-                'ok' =>false,
+                'ok' => true,
                 'error' => "СМС вже відправлено. Спробуйте знову через {$waitMinutes} хв."
             ], 429);
         }
