@@ -98,8 +98,8 @@ class ApiController extends Controller
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
                 $lastCode = SmsVerification::where('phone', $request->phone)->first();
-                if ($lastCode && $lastCode->last_sent_at && $lastCode->last_sent_at->gt(now()->subMinute(3))) {
-                    $waitSeconds = now()->diffInSeconds($lastCode->last_sent_at->addMinute(3), false);
+                if ($lastCode && $lastCode->last_sent_at && $lastCode->last_sent_at->gt(now()->subMinute())) {
+                    $waitSeconds = now()->diffInSeconds($lastCode->last_sent_at->addMinute(), false);
                     return response()->json([
                         'ok' => false,
                         'resend' => false,
