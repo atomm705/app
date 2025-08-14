@@ -98,13 +98,13 @@ class ApiController extends Controller
             ->first();
 
         if (!$patient) {
-            return response()->json(['error' => 'Пацієнта не знайдено'], 404);
+            return response()->json(['ok' =>false, 'error' => 'Пацієнта не знайдено'], 404);
         }
 
         $user = AppUser::where('patient_id', $patient->id)->first();
 
         if ($user) {
-            return response()->json(['error' => 'Користувач існує. Авторизуйтеся.'], 409);
+            return response()->json(['ok' => false, 'error' => 'Користувач існує. Авторизуйтеся.'], 409);
         }
 
         // Перевірка останнього СМС
@@ -115,6 +115,7 @@ class ApiController extends Controller
         if ($lastSms && $lastSms->last_sent_at && $lastSms->last_sent_at->gt(now()->subMinutes(3))) {
             $waitMinutes = now()->diffInMinutes($lastSms->last_sent_at, false);
             return response()->json([
+                'ok' =>false,
                 'error' => "СМС вже відправлено. Спробуйте знову через {$waitMinutes} хв."
             ], 429);
         }
@@ -148,6 +149,7 @@ class ApiController extends Controller
         }
 
         return response()->json([
+            'ok' => true,
             'message' => 'Вам відправлено СМС з кодом. Введіть його в поле вище.',
             'sms_status' => $result
         ]);
