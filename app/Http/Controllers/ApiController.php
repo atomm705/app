@@ -123,11 +123,14 @@ class ApiController extends Controller
         $code = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
 
         // Зберігаємо код
-        SmsVerification::create([
-            'phone' => $request->phone,
-            'code' => $code,
-            'expires_at' => now()->addMinutes(15),
-        ]);
+        SmsVerification::updateOrCreate(
+            ['phone' => $request->phone],
+            [
+                'code' => $code,
+                'last_sent_at' => now(),
+                'expires_at' => now()->addMinutes(15),
+            ]
+        );
 
         // Відправка СМС
         try {
