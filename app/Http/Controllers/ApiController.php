@@ -98,10 +98,11 @@ class ApiController extends Controller
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
                 $lastCode = SmsVerification::where('phone', $request->phone)->first();
-                if ($lastCode && $lastCode->last_sent_at && $lastCode->last_sent_at->gt(now()->subMinute())) {
-                    $waitSeconds = now()->diffInSeconds($lastCode->last_sent_at->addMinute(), false);
+                if ($lastCode && $lastCode->last_sent_at && $lastCode->last_sent_at->gt(now()->subMinute(3))) {
+                    $waitSeconds = now()->diffInSeconds($lastCode->last_sent_at->addMinute(3), false);
                     return response()->json([
                         'ok' => false,
+                        'resend' => false,
                         'message' => "Код уже відправлено. Можна повторно надіслати через {$waitSeconds} секунд."
                     ], 429);
                 }
@@ -112,7 +113,7 @@ class ApiController extends Controller
                     ['phone' => $request->phone],
                     [
                         'code'         => $code,
-                        'expires_at'   => now()->addMinutes(3),
+                        'expires_at'   => now()->addMinutes(15),
                         'last_sent_at' => now(),
                     ]
                 );
