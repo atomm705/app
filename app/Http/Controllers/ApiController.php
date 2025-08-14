@@ -121,10 +121,10 @@ class ApiController extends Controller
                 } catch (Exception $e) {
                     $result = 'Ничего не вышло';
                 }
-                return response()->json("Вам відправлено СМС з кодом на номер телефону. Введіть його в поле вище.");
+                return response()->json([$request->answer => "Вам відправлено СМС з кодом на номер телефону. Введіть його в поле вище."]);
             }
             else{
-                return response()->json('Користувач існує. Авторизуйтеся.');
+                return response()->json([$request->answer => 'Користувач існує. Авторизуйтеся.']);
             }
         }
     }
