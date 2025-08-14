@@ -13,7 +13,7 @@ class SmsVerification extends Model
         'last_sent_at',
     ];
 
-    protected $dates = [
-        'expires_at',
+    protected $casts = [
+        'expires_at' => 'datetime',
     ];
 }
