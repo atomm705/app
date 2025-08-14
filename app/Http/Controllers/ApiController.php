@@ -97,13 +97,25 @@ class ApiController extends Controller
         if($patient->id){
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
+                $lastCode = SmsVerification::where('phone', $request->phone)->first();
+                if ($lastCode && $lastCode->last_sent_at && $lastCode->last_sent_at->gt(now()->subMinute())) {
+                    $waitSeconds = now()->diffInSeconds($lastCode->last_sent_at->addMinute(), false);
+                    return response()->json([
+                        'ok' => false,
+                        'message' => "Код уже відправлено. Можна повторно надіслати через {$waitSeconds} секунд."
+                    ], 429);
+                }
+
                 $code = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
-                Log::info('Raw body', ['code' => $code]);
-                $sms_code = new SmsVerification();
-                $sms_code->phone = $request->phone;
-                $sms_code->code = $code;
-                $sms_code->expires_at = \Carbon\Carbon::now()->addMinutes(15);
-                $sms_code->save();
+
+                SmsVerification::updateOrCreate(
+                    ['phone' => $request->phone],
+                    [
+                        'code'         => $code,
+                        'expires_at'   => now()->addMinutes(3),
+                        'last_sent_at' => now(),
+                    ]
+                );
 
                 $search = [
                     '(__DATE__)',
@@ -112,7 +124,7 @@ class ApiController extends Controller
                 $sms = [
                     'sender' => 'OK-Centre',
                     'destination' => $request->phone,
-                    'text' => $sms_code->code,
+                    'text' => $code,
                 ];
                 try {
                     $client = $this->auth();
