@@ -217,6 +217,7 @@ class ApiController extends Controller
                 'message' => 'User created successfully!',
                 'token' => $token,
                 'user' => $user,
+                'ok' => true,
             ], 201);
 
         }
