@@ -147,6 +147,46 @@ class ApiController extends Controller
         }
     }
 
+    public function sms_verification(Request $request){
+        $phone = $request->phone;
+        $code = $request->code;
+
+        // Знаходимо останній код для цього телефону
+        $sms = SmsVerification::where('phone', $phone)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (!$sms) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Код не знайдено'
+            ], 404);
+        }
+
+        // Перевірка часу дії
+        if ($sms->expires_at->lt(now())) {
+            return response()->json([
+                'ok'=>false,
+                'message' => 'Код прострочено'
+            ], 400);
+        }
+
+        // Перевірка коду
+        if ($sms->code !== $code) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Невірний код'
+            ], 400);
+        }
+
+        $sms->delete();
+
+        return response()->json([
+            'ok'=> true,
+            'message' => 'Код підтверджено успішно'
+        ]);
+    }
+
     public function create_password(Request $request){
 
         $patientId = $request->patientId;

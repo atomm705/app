@@ -10,4 +10,5 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('apis', ApiController::class);
 Route::post('register', [ApiController::class, 'register']);
+Route::post('sms_verification', [ApiController::class, 'sms_verification']);
 Route::post('create_password', [ApiController::class, 'create_password']);
