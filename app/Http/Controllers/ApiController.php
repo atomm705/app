@@ -97,7 +97,7 @@ class ApiController extends Controller
         if($patient->id){
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
-                $code = Str::random(4);
+                $code = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
                 Log::info('Raw body', ['code' => $code]);
                 $sms_code = new SmsVerification();
                 $sms_code->phone = $request->phone;
@@ -119,12 +119,21 @@ class ApiController extends Controller
                     $sended = $client->SendSMS($sms);
                     $result = $sended->SendSMSResult->ResultArray[0];
                 } catch (Exception $e) {
-                    $result = 'Ничего не вышло';
+                    return response()->json([
+                        'ok'      => false,
+                        'message' => 'Не вдалося надіслати СМС. Спробуйте пізніше.',
+                    ], 502);
                 }
-                return response()->json([$request->answer => "Вам відправлено СМС з кодом на номер телефону. Введіть його в поле вище."]);
+                return response()->json([
+                    'ok'      => true,
+                    'message' => 'Вам відправлено СМС з кодом. Введіть його у полі вище (дійсний 15 хв).',
+                ]);
             }
             else{
-                return response()->json([$request->answer => 'Користувач існує. Авторизуйтеся.']);
+                return response()->json([
+                    'ok'      => false,
+                    'message' => 'Користувач існує. Авторизуйтеся.',
+                ], 502);
             }
         }
     }
