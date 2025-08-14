@@ -97,7 +97,7 @@ class ApiController extends Controller
         if($patient->id){
             $user = AppUser::where('patient_id', $patient->id)->first();
             if(!$user){
-                $code = Str::random(0000, 9999);
+                $code = Str::random(4);
                 Log::info('Raw body', ['code' => $code]);
                 $sms_code = new SmsVerification();
                 $sms_code->phone = $request->phone;
