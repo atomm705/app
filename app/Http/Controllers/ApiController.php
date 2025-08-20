@@ -230,6 +230,8 @@ class ApiController extends Controller
 
         Log::info('Raw body', ['body' => $request->getContent()]);
 
+        $credentials = $request->only('login', 'password');
+
         $user = AppUser::where('login', $request->login)->first();
         if(!$user){
             return response()->json([
@@ -237,23 +239,19 @@ class ApiController extends Controller
                 'message' => 'Користувача не знайдено'
             ], 404);
         }
-        $password = Hash::make($request->password);
-        if($password == $user->password){
-            $token = $user->createToken('MobileApp')->plainTextToken;
-
-            return response()->json([
-                'message' => 'User login successfully!',
-                'token' => $token,
-                'user' => $user,
-                'ok' => true,
-            ], 201);
-        }
-        else{
-            return response()->json([
-                'ok' => false,
-                'message' => 'Не вірний пароль'
-            ], 403);
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return response()->json(['ok'=>false, 'message' => 'Невірний логін або пароль'], 401);
         }
 
+        auth()->login($user);
+
+        $token = $user->createToken('MobileApp')->plainTextToken;
+
+        return response()->json([
+            'message' => 'User login successfully!',
+            'token' => $token,
+            'user' => $user,
+            'ok' => true,
+        ], 201);
     }
 }
