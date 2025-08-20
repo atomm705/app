@@ -209,7 +209,7 @@ class ApiController extends Controller
         if(!$user){
             $user = new AppUser();
             $user->patient_id = $patientId;
-            $user->login = $request->phone;
+            $user->login = $request->login;
             $user->password = Hash::make($request->password);
             $user->save();
 
