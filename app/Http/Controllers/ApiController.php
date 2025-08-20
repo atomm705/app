@@ -248,6 +248,12 @@ class ApiController extends Controller
                 'ok' => true,
             ], 201);
         }
+        else{
+            return response()->json([
+                'ok' => false,
+                'message' => 'Не вырний пароль'
+            ], 404);
+        }
 
     }
 }
