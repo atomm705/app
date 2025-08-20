@@ -251,8 +251,8 @@ class ApiController extends Controller
         else{
             return response()->json([
                 'ok' => false,
-                'message' => 'Не вырний пароль'
-            ], 404);
+                'message' => 'Не вірний пароль'
+            ], 403);
         }
 
     }
