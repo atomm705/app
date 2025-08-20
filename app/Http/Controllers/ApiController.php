@@ -225,4 +225,29 @@ class ApiController extends Controller
 
         }
     }
+
+    public function login(Request $request){
+
+        Log::info('Raw body', ['body' => $request->getContent()]);
+
+        $user = AppUser::where('login', $request->login)->first();
+        if(!$user){
+            return response()->json([
+                'ok' => false,
+                'message' => 'Користувача не знайдено'
+            ], 404);
+        }
+        $password = Hash::make($request->password);
+        if($password == $user->password){
+            $token = $user->createToken('MobileApp')->plainTextToken;
+
+            return response()->json([
+                'message' => 'User login successfully!',
+                'token' => $token,
+                'user' => $user,
+                'ok' => true,
+            ], 201);
+        }
+
+    }
 }
