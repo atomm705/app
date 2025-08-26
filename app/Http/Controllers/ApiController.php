@@ -219,7 +219,7 @@ class ApiController extends Controller
             return response()->json([
                 'message' => 'User created successfully!',
                 'token' => $token,
-                'user' => $user,
+                'user' => $user->id,
                 'ok' => true,
             ], 201);
 
@@ -250,7 +250,7 @@ class ApiController extends Controller
         return response()->json([
             'message' => 'User login successfully!',
             'token' => $token,
-            'user' => $user,
+            'user' => $user->id,
             'ok' => true,
         ], 201);
     }
