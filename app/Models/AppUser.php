@@ -9,4 +9,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class AppUser extends Authenticatable
 {
     use HasApiTokens;
+
+    public function oneVisitor(){
+        return $this->hasOne(Patient::class, 'id', 'patient_id');
+    }
+
+    public function moreVisitors(){
+
+    }
 }
