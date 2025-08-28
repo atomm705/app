@@ -42,6 +42,7 @@ class ApiVisitController extends Controller
         /* One app - one visitor */
         $appUser = $request->user();
 
+        dd($appUser);
 
         if($appUser->patient_id != $request->patientId){
             return response()->json([
