@@ -16,4 +16,8 @@ class LegacyVisit extends Model
     public function doctor(){
         return $this->hasOne(User::class, 'id', 'doctor_id');
     }
+
+    public function time_slot(){
+        return $this->hasOne(TimeSlot::class, 'id', 'time_slot_id');
+    }
 }
