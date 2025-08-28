@@ -11,7 +11,7 @@ class AppUser extends Authenticatable
     use HasApiTokens;
 
     public function oneVisitor(){
-        return $this->hasOne(Visitor::class, 'id', 'patient_id');
+        return $this->hasOne(LegacyVisitor::class, 'id', 'patient_id');
     }
 
     public function moreVisitors(){
