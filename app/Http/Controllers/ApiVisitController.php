@@ -54,14 +54,14 @@ class ApiVisitController extends Controller
             ], 400, []);
         }
 
-        $visits = LegacyVisit::select('id', 'date')->where('visitor_id', $pid)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
+        $visits = LegacyVisit::select('id', 'date')->where('visitor_id', $pid)->with(['doctor', 'facility'])->get();
 
         $items = $visits->map(function($v){
            return [
                'id' => $v->id,
                'date' => $v->date,
-               'facility' => $v->facility_name,
-               'doctor' => $v->last_name .' ' .$v->first_name,
+               'facility' => $v->facility->facility_name,
+               'doctor' => $v->doctor->last_name .' ' .$v->doctor->first_name,
            ];
         });
         return response()->json([
