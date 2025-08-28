@@ -42,18 +42,24 @@ class ApiVisitController extends Controller
         /* One app - one visitor */
         $appUser = $request->user();
 
-        $visitor = $appUser->oneVisitor()   // або ->visitors()
-            ->where('id', $request->patientId)
-            ->first();
-        dd($visitor);
-        if(!$visitor){
+        $hasAccess = false;
+        if (method_exists($appUser, 'patients')) {
+            // якщо зв’язок «кілька пацієнтів»
+            $hasAccess = $appUser->patients()->whereKey($request->patientId)->exists();
+        } elseif (method_exists($appUser, 'oneVisitor')) {
+            // якщо рівно один пацієнт
+            $one = $appUser->oneVisitor; // hasOne → доступ як властивість
+            $hasAccess = $one && (int)$one->id === $request->patientId;
+        }
+
+        if(!$hasAccess){
             return response()->json([
                'ok' => false,
                'message' => 'У вас немає доступу до цього пацієнта, або пацієнт не існує.',
             ], 400, []);
         }
 
-        $visits = LegacyVisit::select('id', 'date')->where('visitor_id', $visitor->id)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
+        $visits = LegacyVisit::select('id', 'date')->where('visitor_id', $request->patientId)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
 
         $items = $visits->map(function($v){
            return [
