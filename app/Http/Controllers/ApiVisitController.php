@@ -49,7 +49,7 @@ class ApiVisitController extends Controller
             return response()->json([
                'ok' => false,
                'message' => 'У вас немає доступу до цього пацієнта, або пацієнт не існує.',
-            ]);
+            ], 400, []);
         }
 
         $visits = LegacyVisit::select('id', 'date')->where('visitor_id', $visitor->id)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
