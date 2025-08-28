@@ -247,16 +247,14 @@ class ApiController extends Controller
 
         auth()->login($user);
         $user->tokens()->where('name', 'mobileApp')->delete();
-        $expiresAt = now()->addDays(365);
 
-        $token = $user->createToken('MobileApp', $expiresAt)->plainTextToken;
+        $token = $user->createToken('MobileApp')->plainTextToken;
 
         return response()->json([
             'message' => 'User login successfully!',
             'token' => $token,
             'user' => $user->id,
             'ok' => true,
-            'expires_at' => $expiresAt->toIso8601String(),
         ], 201);
     }
 }
