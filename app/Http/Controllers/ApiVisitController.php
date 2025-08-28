@@ -43,7 +43,7 @@ class ApiVisitController extends Controller
         $appUser = $request->user();
 
         $visitor = $appUser->oneVisitor()   // або ->visitors()
-            ->where('patient_id', $request->patientId)
+            ->where('id', $request->patientId)
             ->first();
         if(!$visitor){
             return response()->json([
@@ -52,7 +52,7 @@ class ApiVisitController extends Controller
             ]);
         }
 
-        $visits = LegacyVisit::select('id', 'date')->where('visit_id', $visitor->id)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
+        $visits = LegacyVisit::select('id', 'date')->where('visitor_id', $visitor->id)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
 
         $items = $visits->map(function($v){
            return [
