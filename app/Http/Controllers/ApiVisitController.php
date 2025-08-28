@@ -42,9 +42,7 @@ class ApiVisitController extends Controller
         /* One app - one visitor */
         $appUser = $request->user();
 
-        dd($appUser);
-
-        if($appUser->patient_id != $request->patientId){
+        if($appUser->oneVisitor() != $request->patientId){
             return response()->json([
                'ok' => false,
                'message' => 'У вас немає доступу до цього пацієнта, або пацієнт не існує.',
