@@ -45,6 +45,7 @@ class ApiVisitController extends Controller
         $visitor = $appUser->oneVisitor()   // або ->visitors()
             ->where('id', $request->patientId)
             ->first();
+        dd($visitor);
         if(!$visitor){
             return response()->json([
                'ok' => false,
