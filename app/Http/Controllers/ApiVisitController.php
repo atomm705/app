@@ -42,17 +42,8 @@ class ApiVisitController extends Controller
         /* One app - one visitor */
         $appUser = $request->user();
 
-        $hasAccess = false;
-        if (method_exists($appUser, 'patients')) {
-            // якщо зв’язок «кілька пацієнтів»
-            $hasAccess = $appUser->patients()->whereKey($request->patientId)->exists();
-        } elseif (method_exists($appUser, 'oneVisitor')) {
-            // якщо рівно один пацієнт
-            $one = $appUser->oneVisitor; // hasOne → доступ як властивість
-            $hasAccess = $one && (int)$one->id === $request->patientId;
-        }
 
-        if(!$hasAccess){
+        if($appUser->patient_id != $request->patientId){
             return response()->json([
                'ok' => false,
                'message' => 'У вас немає доступу до цього пацієнта, або пацієнт не існує.',
