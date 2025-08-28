@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AppUser;
 use App\Models\AppVerificationCode;
+use App\Models\LegacyVisitor;
 use App\Models\Patient;
 use App\Models\SmsVerification;
 use Illuminate\Http\Request;
@@ -90,11 +91,11 @@ class ApiController extends Controller
         $dob = $dobs[2] . '-' . $dobs[1] . '-' . $dobs[0];
 
         // Пошук пацієнта
-        $patient = Patient::where('last_name', $request->lastName)
+        $patient = LegacyVisitor::where('last_name', $request->lastName)
             ->where('first_name', $request->firstName)
             ->where('middle_name', $request->middleName)
             ->where('phone', $request->phone)
-            ->where('dob', $dob)
+            ->where('birthday', $dob)
             ->first();
 
         if (!$patient) {
@@ -203,7 +204,7 @@ class ApiController extends Controller
         $patientId = $request->patientId;
 
         Log::info('Raw body', ['body' => $request->getContent()]);
-        $patient = Patient::find($patientId);
+        $patient = LegacyVisitor::find($patientId);
 
         $user = AppUser::where('patient_id', $patientId)->first();
         if(!$user){
@@ -233,6 +234,7 @@ class ApiController extends Controller
         $credentials = $request->only('login', 'password');
 
         $user = AppUser::where('login', $request->login)->first();
+
         if(!$user){
             return response()->json([
                 'ok' => false,
@@ -244,14 +246,17 @@ class ApiController extends Controller
         }
 
         auth()->login($user);
+        $user->tokens()->where('name', 'mobileApp')->delete();
+        $expiresAt = now()->addDays(365);
 
-        $token = $user->createToken('MobileApp')->plainTextToken;
+        $token = $user->createToken('MobileApp', $expiresAt)->plainTextToken;
 
         return response()->json([
             'message' => 'User login successfully!',
             'token' => $token,
             'user' => $user->id,
             'ok' => true,
+            'expires_at' => $expiresAt->toIso8601String(),
         ], 201);
     }
 }

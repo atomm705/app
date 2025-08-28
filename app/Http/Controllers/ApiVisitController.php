@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\AppUser;
+use App\Models\LegacyVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use function Pest\Mutate\result;
 
 class ApiVisitController extends Controller
 {
     public function select(Request $request){
 
-        //Log::info('Raw body', ['body' => $request->getContent()]);
+        Log::info('Raw body', ['body' => $request->getContent()]);
 
         /* One app - one visitor */
         $appUser = $request->user();
@@ -32,5 +34,38 @@ class ApiVisitController extends Controller
             'patients' => $patients,
         ], 200, [], JSON_UNESCAPED_UNICODE);
         /* one app - more visitors */
+    }
+
+    public function visits(Request $request){
+        Log::info('Raw body', ['body' => $request->getContent()]);
+
+        /* One app - one visitor */
+        $appUser = $request->user();
+
+        $visitor = $appUser->oneVisitor()   // або ->visitors()
+            ->where('patient_id', $request->patientId)
+            ->first();
+        if(!$visitor){
+            return response()->json([
+               'ok' => false,
+               'message' => 'У вас немає доступу до цього пацієнта, або пацієнт не існує.',
+            ]);
+        }
+
+        $visits = LegacyVisit::select('id', 'date')->where('visit_id', $visitor->id)->with(['doctor: last_name, first_name', 'facility : facility_name'])->get();
+
+        $items = $visits->map(function($v){
+           return [
+               'id' => $v->id,
+               'date' => $v->date,
+               'facility' => $v->facility_name,
+               'doctor' => $v->last_name .' ' .$v->first_name,
+           ];
+        });
+        return response()->json([
+            'ok' => true,
+            'visits' => $items,
+
+        ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
