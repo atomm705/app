@@ -40,9 +40,14 @@ class ApiVisitController extends Controller
         Log::info('Raw body', ['body' => $request->getContent()]);
 
         /* One app - one visitor */
+
         $appUser = $request->user();
 
-        if($appUser->oneVisitor()->visitor_id != $request->patientId){
+
+        $pid = (int) $request->input('patientId');
+        $hasAccess = $appUser->OneVisitor()->whereKey($pid)->exists();
+
+        if(!$hasAccess){
             return response()->json([
                'ok' => false,
                'message' => 'У вас немає доступу до цього пацієнта, або пацієнт не існує.',
