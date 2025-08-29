@@ -63,12 +63,39 @@ class ApiVisitController extends Controller
                'time' => $v->time_slot->time,
                'facility' => $v->facility->facility_name,
                'doctor' => $v->doctor->last_name .' ' .$v->doctor->first_name,
+               'status' => $v->status,
            ];
         });
         return response()->json([
             'ok' => true,
             'visits' => $items,
 
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function visit(Request $request){
+
+        Log::info('Raw body', ['body' => $request->getContent()]);
+
+        /* One app - one visitor */
+
+        $appUser = $request->user();
+
+
+        $pid = (int) $request->input('patientId');
+        $hasAccess = $appUser->OneVisitor()->whereKey($pid)->exists();
+
+        $visit = LegacyVisit::findOrFail($request->visitId);
+        if(!$visit){
+            return response()->json([
+                'ok' => false,
+                'message' => 'У Вас немає доступу до цього візиту, або візит не існує',
+            ], 404, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'visit' => $item,
         ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
