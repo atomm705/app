@@ -18,6 +18,6 @@ class LegacyClient
     {
         return self::http()
             ->accept('application/pdf')
-            ->get("/visit/{visitId}/export_to_pdf");
+            ->get("visit/{visitId}/export_to_pdf");
     }
 }
