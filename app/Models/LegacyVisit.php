@@ -20,4 +20,16 @@ class LegacyVisit extends Model
     public function time_slot(){
         return $this->hasOne(TimeSlot::class, 'id', 'time_slot_id');
     }
+
+    public function visitor(){
+        return $this->hasOne(LegacyVisitor::class, 'id', 'visitor_id');
+    }
+
+    public function visit_info(){
+        return $this->hasOne(LegacyVisitInfo::class, 'visit_id', 'id');
+    }
+
+    public function visit_diag_infos(){
+        return $this->hasMany(LegacyVisitDiagInfo::class, 'visit_id', 'id');
+    }
 }
