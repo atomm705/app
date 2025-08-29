@@ -76,11 +76,8 @@ class ApiVisitController extends Controller
         ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function show(Request $request){
+    public function show($visitId){
 
-        Log::info('Raw body', ['body' => $request->getContent()]);
-
-        $visitId = (int) $request->input('visitId');
         Log::info('Raw body', ['body' => $visitId]);
         if(!$visitId){
             return response()->json([
