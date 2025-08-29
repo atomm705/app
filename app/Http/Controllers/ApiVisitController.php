@@ -82,7 +82,7 @@ class ApiVisitController extends Controller
 
         /* One app - one visitor */
 
-        $visitId = (int) ($request->input('visitId') ?? $request->input('visit_id'));
+        $visitId = ($request->input('visitId') ?? $request->input('visit_id'));
         if(!$visitId){
             return response()->json([
                 'ok' => false,
