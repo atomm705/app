@@ -86,7 +86,7 @@ class ApiVisitController extends Controller
         if(!$visitId){
             return response()->json([
                 'ok' => false,
-                'message' => 'У Вас немає доступу до цього візиту, або візит не існує',
+                'message' => 'Візит не існує',
             ], 404, [], JSON_UNESCAPED_UNICODE);
         }
         $visit = LegacyVisit::query()
