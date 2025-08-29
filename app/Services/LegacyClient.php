@@ -14,6 +14,6 @@ class LegacyClient
     }
 
     public static function pdf(int $visitId) {
-        return self::http()->accept('application/pdf')->get("'visit/{visitId}/export_to_pdf");
+        return self::http()->accept('application/pdf')->get("visit/{visitId}/export_to_pdf");
     }
 }
