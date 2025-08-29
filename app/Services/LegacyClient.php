@@ -9,7 +9,6 @@ class LegacyClient
 {
     protected static function http() {
         return Http::baseUrl(rtrim(env('LEGACY_INTERNAL_URL'), '/'))
-            ->withHeaders(['X-Internal-Token' => env('INTERNAL_TOKEN')])
             ->timeout(30);
     }
 
