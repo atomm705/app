@@ -5,13 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ApiProfileController;
 use App\Http\Controllers\ApiVisitController;
-Route::get('visit/{visitId}', [ApiVisitController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('profile', [ApiProfileController::class, 'index']);
 
     Route::post('select', [ApiVisitController::class, 'select']);
     Route::post('visits', [ApivisitController::class, 'visits']);
+    Route::post('visit', [ApiVisitController::class, 'show']);
 });
 
 Route::apiResource('apis', ApiController::class);
