@@ -94,7 +94,7 @@ class ApiVisitController extends Controller
                 'doctor',
                 'facility',
             ])
-            ->select('id','date','time','status','doctor_id','facility_id','visitor_id') // FK обовʼязково
+            ->select('id','date','time_slot_id','status','doctor_id','facility_id','visitor_id') // FK обовʼязково
             ->find($visitId);
         if(!$visit){
             return response()->json([
