@@ -100,7 +100,7 @@ class ApiVisitController extends Controller
             return response()->json([
                 'ok' => false,
                 'message' => 'У Вас немає доступу до цього візиту, або візит не існує',
-            ], 404, [], JSON_UNESCAPED_UNICODE);
+            ], 402, [], JSON_UNESCAPED_UNICODE);
         }
 
         $user = $request->user();
