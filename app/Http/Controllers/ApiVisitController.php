@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\LegacyClient;
 
 class ApiVisitController extends Controller
 {
@@ -114,46 +115,18 @@ class ApiVisitController extends Controller
             return response()->json(['ok'=>false,'message'=>'Немає доступу до цього пацієнта'], 403, [], JSON_UNESCAPED_UNICODE);
         }
 
-        if($visit->facility_id == '1'){
-            $forms = LegacyVisitInfo::where('visit_id', $visit->id)
-                ->get(['specialist', 'form', 'value'])
-                ->map(function($row){
-                    return [
-                        'specialist' => $row->specialist,
-                        'form' => $row->form,
-                        'value' => $this->safeJsonDecode($row->value),
-                    ];
-                });
 
+        $resp = LegacyClient::pdf($request->visitId);
+        if ($resp->failed()) {
+            return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);
         }
-        if($visit->facility_id == '2'){
-            $forms = LegacyVisitDiagInfo::where('visit_id', $visit->id)
-                ->get(['specialist', 'form', 'value'])
-                ->map(function($row){
-                    return [
-                        'specialist' => $row->specialist,
-                        'form' => $row->form,
-                        'value' => $this->safeJsonDecode($row->value),
-                    ];
-                });
 
-        }
-        $payload = [
-            'id'       => $visit->id,
-            'date'     => $visit->date instanceof Carbon ? $visit->date->toDateString() : (string)$visit->date,
-            'time'     => $visit->time,
-            'status'   => $visit->status,
-            'doctor'   => $visit->doctor ? trim(($visit->doctor->last_name ?? '').' '.($visit->doctor->first_name ?? '')) : null,
-            'facility' => $visit->facility->facility_name ?? null,
-            'patient_id' => $pid,
-            'forms'    => $forms,
-            'pdf_url'  => route('api.visit.pdf', ['id' => $visit->id]), // зручно віддати посилання
-        ];
-
-        return response()->json([
-            'ok' => true,
-            'visit' => $payload,
-        ], 200, [], JSON_UNESCAPED_UNICODE);
+        $name = "visit_{$request->visitId}.pdf";
+        return response($resp->body(), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$name.'"',
+            'Cache-Control'       => 'private, max-age=0, must-revalidate',
+        ]);
     }
 
     public function pdf(Request $request, int $id)
