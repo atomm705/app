@@ -114,10 +114,8 @@ class ApiVisitController extends Controller
         if (!$hasAccess) {
             return response()->json(['ok'=>false,'message'=>'Немає доступу до цього пацієнта'], 403, [], JSON_UNESCAPED_UNICODE);
         }
-        Log::info('Raw body', ['body' => $visit->id]);
 
         $resp = LegacyClient::pdf($visit->id);
-        Log::info('Raw body', ['body' => $resp]);
 
         if ($resp->failed()) {
             return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);

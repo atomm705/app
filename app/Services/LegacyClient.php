@@ -7,13 +7,17 @@ use Illuminate\Support\Facades\Http;
 
 class LegacyClient
 {
-    protected static function http() {
+
+    protected static function http()
+    {
         return Http::baseUrl(rtrim(env('LEGACY_INTERNAL_URL'), '/'))
-            ->withHeaders(['X-Internal-Token' => env('INTERNAL_TOKEN')])
             ->timeout(30);
     }
 
-    public static function pdf(int $visitId) {
-        return self::http()->accept('application/pdf')->get("visit/{visitId}/export_to_pdf");
+    public static function pdf(int $visitId)
+    {
+        return self::http()
+            ->accept('application/pdf')
+            ->get("/visit/{visitId}/export_to_pdf");
     }
 }
