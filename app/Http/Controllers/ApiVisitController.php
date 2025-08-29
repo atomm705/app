@@ -116,12 +116,12 @@ class ApiVisitController extends Controller
         }
 
 
-        $resp = LegacyClient::pdf($request->visitId);
+        $resp = LegacyClient::pdf($visit->id);
         if ($resp->failed()) {
             return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);
         }
 
-        $name = "visit_{$request->visitId}.pdf";
+        $name = "visit_{$visit->id}.pdf";
         return response($resp->body(), 200, [
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'inline; filename="'.$name.'"',
