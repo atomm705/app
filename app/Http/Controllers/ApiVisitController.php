@@ -116,7 +116,7 @@ class ApiVisitController extends Controller
 
         $resp = LegacyClient::pdf($visit->id);
 
-        if ($resp->failed()) {
+        if (!$resp) {
             return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);
         }
 
