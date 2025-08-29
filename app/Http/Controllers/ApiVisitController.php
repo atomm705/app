@@ -117,6 +117,8 @@ class ApiVisitController extends Controller
 
 
         $resp = LegacyClient::pdf($visit->id);
+        Log::info('Raw body', ['body' => $resp]);
+
         if ($resp->failed()) {
             return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);
         }
