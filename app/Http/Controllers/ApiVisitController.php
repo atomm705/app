@@ -57,7 +57,7 @@ class ApiVisitController extends Controller
             ], 400, []);
         }
 
-        $visits = LegacyVisit::select('id', 'date', 'facility_id', 'doctor_id', 'time_slot_id', 'status')->where('visitor_id', $pid)->with(['doctor', 'facility', 'time_slot'])->where('status', ['new', 'payed', 'partpayed'])->get();
+        $visits = LegacyVisit::select('id', 'date', 'facility_id', 'doctor_id', 'time_slot_id', 'status')->where('visitor_id', $pid)->with(['doctor', 'facility', 'time_slot'])->whereIn('status', ['new', 'payed', 'partpayed'])->get();
 
         $items = $visits->map(function($v){
            return [
