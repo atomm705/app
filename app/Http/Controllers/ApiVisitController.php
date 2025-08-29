@@ -81,7 +81,7 @@ class ApiVisitController extends Controller
         Log::info('Raw body', ['body' => $request->getContent()]);
 
         $visitId = (int) $request->input('visitId');
-
+        Log::info('Raw body', ['body' => $visitId]);
         if(!$visitId){
             return response()->json([
                 'ok' => false,
