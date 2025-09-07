@@ -11,7 +11,7 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::post('select', [ApiVisitController::class, 'select']);
     Route::post('visits', [ApivisitController::class, 'visits']);
-    Route::post('visit', [ApiVisitController::class, 'show']);
+    Route::get('visit/{visit}', [ApiVisitController::class, 'show']);
 });
 
 Route::apiResource('apis', ApiController::class);
