@@ -76,7 +76,7 @@ class ApiVisitController extends Controller
         ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function show(Request $request, $visit){
+    public function show(Request $request, $visit, $userId){
 
         Log::info('Raw body', ['body' => $request->getContent()]);
 
@@ -103,7 +103,9 @@ class ApiVisitController extends Controller
             ], 402, [], JSON_UNESCAPED_UNICODE);
         }
 
-        $user = $request->user();
+        //$user = $request->user();
+        $user = AppUser::find($userId);
+
         $pid  = (int) $visit->visitor_id; // або patient_id, якщо у вас так
 
         // Перевірка доступу: або many-to-many (patients), або hasOne (oneVisitor)
