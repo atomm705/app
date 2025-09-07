@@ -76,12 +76,11 @@ class ApiVisitController extends Controller
         ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function show(Request $request, $visitId, $userId){
+    public function show(Request $request){
 
         Log::info('Raw body', ['body' => $request->getContent()]);
 
-        //$visitId = (int) $request->input('visitId');
-
+        $visitId = (int) $request->input('visitId');
         Log::info('Raw body', ['body' => $visitId]);
         if(!$visitId){
             return response()->json([
@@ -103,9 +102,7 @@ class ApiVisitController extends Controller
             ], 402, [], JSON_UNESCAPED_UNICODE);
         }
 
-        //$user = $request->user();
-        $user = AppUser::find($userId);
-
+        $user = $request->user();
         $pid  = (int) $visit->visitor_id; // або patient_id, якщо у вас так
 
         // Перевірка доступу: або many-to-many (patients), або hasOne (oneVisitor)
@@ -119,20 +116,8 @@ class ApiVisitController extends Controller
 
         $resp = LegacyClient::pdf($visit->id);
 
-        \Log::warning('Legacy PDF', [
-            'status' => $resp->status(),
-            'ct'     => $resp->header('Content-Type'),
-            'head'   => substr($resp->body(), 0, 10),
-        ]);
-        if ($resp->failed() ||
-            stripos($resp->header('Content-Type') ?? '', 'application/pdf') === false ||
-            ! str_starts_with($resp->body(), '%PDF')) {
-            \Log::warning('Legacy PDF fetch failed', [
-                'status' => $resp->status(),
-                'ct'     => $resp->header('Content-Type'),
-                'head'   => substr($resp->body(), 0, 50),
-            ]);
-            return response()->json(['ok'=>false,'message'=>'Legacy error'], 502);
+        if (!$resp) {
+            return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);
         }
 
         $name = "visit_{$visit->id}.pdf";
