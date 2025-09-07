@@ -119,6 +119,11 @@ class ApiVisitController extends Controller
 
         $resp = LegacyClient::pdf($visit->id);
 
+        \Log::warning('Legacy PDF', [
+            'status' => $resp->status(),
+            'ct'     => $resp->header('Content-Type'),
+            'head'   => substr($resp->body(), 0, 10),
+        ]);
         if ($resp->failed() ||
             stripos($resp->header('Content-Type') ?? '', 'application/pdf') === false ||
             ! str_starts_with($resp->body(), '%PDF')) {
