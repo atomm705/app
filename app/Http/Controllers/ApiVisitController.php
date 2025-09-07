@@ -89,7 +89,6 @@ class ApiVisitController extends Controller
                 'message' => 'Візит не існує',
             ], 404, [], JSON_UNESCAPED_UNICODE);
         }
-        dd($visitId);
         $visit = LegacyVisit::query()
             ->with([
                 'doctor',
