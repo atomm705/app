@@ -24,5 +24,5 @@ Route::get('doctors', [ApiController::class, 'doctors']);
 Route::get('doctors/{doctorId}/show', [ApiController::class, 'doctor_show']);
 
 Route::get('services', [ApiController::class, 'services']);
-Route::get('visit/{visit}/{userId}', [ApiVisitController::class, 'show']);
+Route::get('visit/{visitId}/{userId}', [ApiVisitController::class, 'show']);
 
