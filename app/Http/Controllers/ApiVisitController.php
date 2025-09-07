@@ -119,8 +119,15 @@ class ApiVisitController extends Controller
 
         $resp = LegacyClient::pdf($visit->id);
 
-        if (!$resp) {
-            return response()->json(['ok'=>false,'message'=>'Legacy error','status'=>$resp->status()], 502);
+        if ($resp->failed() ||
+            stripos($resp->header('Content-Type') ?? '', 'application/pdf') === false ||
+            ! str_starts_with($resp->body(), '%PDF')) {
+            \Log::warning('Legacy PDF fetch failed', [
+                'status' => $resp->status(),
+                'ct'     => $resp->header('Content-Type'),
+                'head'   => substr($resp->body(), 0, 50),
+            ]);
+            return response()->json(['ok'=>false,'message'=>'Legacy error'], 502);
         }
 
         $name = "visit_{$visit->id}.pdf";
